@@ -1,0 +1,21 @@
+Install
+sudo tar -C /usr/local -xzf go1.11.2.linux-amd64.tar.gz
+sudo gedit ~/.bashrc
+# add line at the end of file
+export PATH=$PATH:/usr/local/go/bin
+source ~/.bashrc
+
+http://www.gorillatoolkit.org/pkg/mux
+http://doc.gorm.io/database.html#connecting-to-a-database
+go get -u github.com/gorilla/mux
+go get -u github.com/jinzhu/gorm
+go get -u github.com/go-sql-driver/mysql
+go get -u github.com/davecgh/go-spew/spew
+
+https://github.com/gorilla/mux
+http://doc.gorm.io/database.html#connecting-to-a-database
+https://semaphoreci.com/community/tutorials/building-and-testing-a-rest-api-in-go-with-gorilla-mux-and-postgresql
+http://www.golangprograms.com/golang-restful-api-using-grom-and-gorilla-mux.html
+https://blog.narenarya.in/build-rest-api-go-mysql.html
+http://gorm.io/docs/query.html
+http://mindbowser.com/golang-go-with-gorm-2/
