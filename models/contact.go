@@ -6,7 +6,7 @@ import (
 )
 
 type Contact struct {
-	ID    int    `json:"id" gorm:"primary_key:yes"`
+	ID    int64  `json:"id" gorm:"primary_key:yes"`
 	Name  string `json:"name" gorm:"type:varchar(255);not null"`
 	Email string `json:"email" gorm:"type:varchar(100)"`
 	Phone string `json:"phone" gorm:"type:varchar(30)"`

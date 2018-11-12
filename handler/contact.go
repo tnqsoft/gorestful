@@ -1,128 +1,110 @@
 package handler
 
 import (
+	"encoding/json"
+	"log"
 	"net/http"
+	"strconv"
 
 	"../models"
-	"github.com/davecgh/go-spew/spew"
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func GetAllContacts(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
 	contacts := []models.Contact{}
-	db.Debug().Find(&contacts)
-	var count int
-	db.Model(&models.Contact{}).Count(&count)
-	// db.Find(&contacts)
-	spew.Dump(count)
+	if err := db.Find(&contacts).Error; err != nil {
+		log.Fatal(err)
+	}
+
 	respondJSON(w, http.StatusOK, contacts)
 }
 
-// func CreateEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	employee := models.Contact{}
+func CreateContact(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	contact := models.Contact{}
 
-// 	decoder := json.NewDecoder(r.Body)
-// 	if err := decoder.Decode(&employee); err != nil {
-// 		respondError(w, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
-// 	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&contact); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
 
-// 	if err := db.Save(&employee).Error; err != nil {
-// 		respondError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusCreated, employee)
-// }
+	if err := db.Save(&contact).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusCreated, contact)
+}
 
-// func GetEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
+func GetContact(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
-// 	name := vars["name"]
-// 	employee := getEmployeeOr404(db, name, w, r)
-// 	if employee == nil {
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusOK, employee)
-// }
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	contact := getContactOr404(db, id, w, r)
+	if contact == nil {
+		return
+	}
+	respondJSON(w, http.StatusOK, contact)
+}
 
-// func UpdateEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
+func UpdateContact(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
-// 	name := vars["name"]
-// 	employee := getEmployeeOr404(db, name, w, r)
-// 	if employee == nil {
-// 		return
-// 	}
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	contact := getContactOr404(db, id, w, r)
+	if contact == nil {
+		return
+	}
 
-// 	decoder := json.NewDecoder(r.Body)
-// 	if err := decoder.Decode(&employee); err != nil {
-// 		respondError(w, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
-// 	defer r.Body.Close()
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&contact); err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	defer r.Body.Close()
 
-// 	if err := db.Save(&employee).Error; err != nil {
-// 		respondError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusOK, employee)
-// }
+	if err := db.Save(&contact).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusOK, contact)
+}
 
-// func DeleteEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
+func DeleteContact(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
 
-// 	name := vars["name"]
-// 	employee := getEmployeeOr404(db, name, w, r)
-// 	if employee == nil {
-// 		return
-// 	}
-// 	if err := db.Delete(&employee).Error; err != nil {
-// 		respondError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusNoContent, nil)
-// }
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	contact := getContactOr404(db, id, w, r)
+	if contact == nil {
+		return
+	}
+	if err := db.Delete(&contact).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	respondJSON(w, http.StatusNoContent, nil)
+}
 
-// func DisableEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
-
-// 	name := vars["name"]
-// 	employee := getEmployeeOr404(db, name, w, r)
-// 	if employee == nil {
-// 		return
-// 	}
-// 	employee.Disable()
-// 	if err := db.Save(&employee).Error; err != nil {
-// 		respondError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusOK, employee)
-// }
-
-// func EnableEmployee(db *gorm.DB, w http.ResponseWriter, r *http.Request) {
-// 	vars := mux.Vars(r)
-
-// 	name := vars["name"]
-// 	employee := getEmployeeOr404(db, name, w, r)
-// 	if employee == nil {
-// 		return
-// 	}
-// 	employee.Enable()
-// 	if err := db.Save(&employee).Error; err != nil {
-// 		respondError(w, http.StatusInternalServerError, err.Error())
-// 		return
-// 	}
-// 	respondJSON(w, http.StatusOK, employee)
-// }
-
-// // getEmployeeOr404 gets a employee instance if exists, or respond the 404 error otherwise
-// func getEmployeeOr404(db *gorm.DB, name string, w http.ResponseWriter, r *http.Request) *models.Contact {
-// 	employee := models.Contact{}
-// 	if err := db.First(&employee, models.Contact{Name: name}).Error; err != nil {
-// 		respondError(w, http.StatusNotFound, err.Error())
-// 		return nil
-// 	}
-// 	return &employee
-// }
+// getContactOr404 gets a contact instance if exists, or respond the 404 error otherwise
+func getContactOr404(db *gorm.DB, id int64, w http.ResponseWriter, r *http.Request) *models.Contact {
+	contact := models.Contact{}
+	if err := db.First(&contact, models.Contact{ID: id}).Error; err != nil {
+		respondError(w, http.StatusNotFound, err.Error())
+		return nil
+	}
+	return &contact
+}

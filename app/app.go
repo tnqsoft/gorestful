@@ -30,9 +30,9 @@ func (a *App) Initialize(config *config.Config) {
 		config.DB.Charset)
 
 	db, err := gorm.Open(config.DB.Dialect, dbURI)
-	defer db.Close()
+	// defer db.Close()
 	if err != nil {
-		log.Fatal("Could not connect database")
+		panic(err)
 	}
 
 	db.SingularTable(true)
@@ -47,12 +47,10 @@ func (a *App) Initialize(config *config.Config) {
 func (a *App) setRouters() {
 	// Routing for handling the projects
 	a.Get("/contacts", a.GetAllContacts)
-	// a.Post("/employees", a.CreateEmployee)
-	// a.Get("/employees/{title}", a.GetEmployee)
-	// a.Put("/employees/{title}", a.UpdateEmployee)
-	// a.Delete("/employees/{title}", a.DeleteEmployee)
-	// a.Put("/employees/{title}/disable", a.DisableEmployee)
-	// a.Put("/employees/{title}/enable", a.EnableEmployee)
+	a.Post("/contacts", a.CreateContact)
+	a.Get("/contacts/{id}", a.GetContact)
+	a.Put("/contacts/{id}", a.UpdateContact)
+	a.Delete("/contacts/{id}", a.DeleteContact)
 }
 
 // Wrap the router for GET method
@@ -75,34 +73,26 @@ func (a *App) Delete(path string, f func(w http.ResponseWriter, r *http.Request)
 	a.Router.HandleFunc(path, f).Methods("DELETE")
 }
 
-// Handlers to manage Employee Data
+// Handlers to manage Contact Data
 func (a *App) GetAllContacts(w http.ResponseWriter, r *http.Request) {
 	handler.GetAllContacts(a.DB, w, r)
 }
 
-// func (a *App) CreateEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.CreateEmployee(a.DB, w, r)
-// }
+func (a *App) CreateContact(w http.ResponseWriter, r *http.Request) {
+	handler.CreateContact(a.DB, w, r)
+}
 
-// func (a *App) GetEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.GetEmployee(a.DB, w, r)
-// }
+func (a *App) GetContact(w http.ResponseWriter, r *http.Request) {
+	handler.GetContact(a.DB, w, r)
+}
 
-// func (a *App) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.UpdateEmployee(a.DB, w, r)
-// }
+func (a *App) UpdateContact(w http.ResponseWriter, r *http.Request) {
+	handler.UpdateContact(a.DB, w, r)
+}
 
-// func (a *App) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.DeleteEmployee(a.DB, w, r)
-// }
-
-// func (a *App) DisableEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.DisableEmployee(a.DB, w, r)
-// }
-
-// func (a *App) EnableEmployee(w http.ResponseWriter, r *http.Request) {
-// 	handler.EnableEmployee(a.DB, w, r)
-// }
+func (a *App) DeleteContact(w http.ResponseWriter, r *http.Request) {
+	handler.DeleteContact(a.DB, w, r)
+}
 
 // Run the app on it's router
 func (a *App) Run() {
